@@ -30,7 +30,7 @@ int main(int argc, char **argv)
 
 	int N;
 
-	if(!(N = atoi(argv[2]))){
+	if(!(N = atoi(argv[1]))){
 		printf("Error: wrong matrix order (0 < N <= 2000)\n");
 		exit(1);
 	}
