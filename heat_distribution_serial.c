@@ -28,7 +28,7 @@ int run(double* room[2], int N, double epsilon){
 		}
 		if(maxdiff <= epsilon){
 			printf("%-7d %f\n", iteration + 1, maxdiff);
-			return c; // last updated matrix, because of return condition on while is technically needless
+			return c; // last updated matrix
 		}
 		iteration++;
 	}
@@ -65,7 +65,7 @@ int main(int argc, char **argv)
 
 	epsilon = atof(argv[4]);
 	if(epsilon < 0.000001f || epsilon > 100.0f){
-                fprintf(stderr, "Error: wrong wall temperature (%f <= N <= %f)\n", 0.000001f, 100.0f);
+                fprintf(stderr, "Error: wrong epsilon (%f <= N <= %f)\n", 0.000001f, 100.0f);
 		exit(1);
         }
 	// end of input validation
@@ -78,11 +78,11 @@ int main(int argc, char **argv)
 	room[0] = malloc(N * N * sizeof(double));
 	room[1] = malloc(N * N * sizeof(double));
 
-	for(int i = 0; i < N; i++){ // top wall
-		room[0][i] = fire_temp;
-		room[1][i] = fire_temp;
-	}
-	for(int j = 1; j < N; j++){ // other walls
+	room[0][0] = fire_temp;
+	room[1][0] = fire_temp;
+	for(int j = 1; j < N; j++){ // walls
+		room[0][j] = fire_temp;
+                room[1][j] = fire_temp;
 		room[0][j*N] = room[0][j*N + N - 1] = room[0][N*(N-1) + j] = wall_temp;
 		room[1][j*N] = room[1][j*N + N - 1] = room[1][N*(N-1) + j] = wall_temp;
 	}

@@ -29,7 +29,7 @@ int run(double* room[2], int N, double epsilon){
 		}
 		if(maxdiff <= epsilon){
 			printf("%-7d %f\n", iteration + 1, maxdiff);
-			return c; // last updated matrix, because of return condition on while is technically needless
+			return c; // last updated matrix
 		}
 		iteration++;
 	}
@@ -66,7 +66,7 @@ int main(int argc, char **argv)
 
 	epsilon = atof(argv[4]);
 	if(epsilon < 0.000001f || epsilon > 100.0f){
-                fprintf(stderr, "Error: wrong wall temperature (%f <= N <= %f)\n", 0.000001f, 100.0f);
+                fprintf(stderr, "Error: wrong epsilon (%f <= N <= %f)\n", 0.000001f, 100.0f);
 		exit(1);
         }
 	// end of input validation
@@ -80,7 +80,7 @@ int main(int argc, char **argv)
 	room[1] = malloc(N * N * sizeof(double));
 	double total = 0;
 
-	/*#pragma omp parallel reduction(+:total)
+	#pragma omp parallel reduction(+:total)
 	{
 		#pragma omp master
 		{
@@ -89,43 +89,14 @@ int main(int argc, char **argv)
 			total += fire_temp;
 		}
 		#pragma omp for
-		for(int j = 1; j < N; j++){ // other walls
+		for(int j = 1; j < N; j++){ // walls
 			room[0][j] = fire_temp;
                         room[1][j] = fire_temp;
 			room[0][j*N] = room[0][j*N + N - 1] = room[0][N*(N-1) + j] = wall_temp;
 			room[1][j*N] = room[1][j*N + N - 1] = room[1][N*(N-1) + j] = wall_temp;
 			total += fire_temp + wall_temp * (2 + (j != N - 1));
 		}
-	}*/
-
-
-	#pragma omp parallel reduction(+:total)
-        {
-                #pragma omp for nowait
-                for(int i = 0; i < N; i++){
-                        room[0][i] = fire_temp;
-                        total += fire_temp;
-                }
-		#pragma omp for nowait
-                for(int i = 0; i < N; i++){
-                        room[1][i] = fire_temp;
-                }
-		#pragma omp for nowait
-                for(int i = 0; i < N; i++){
-                        room[0][N*(N-1) + i] = wall_temp;
-                        total += wall_temp;
-                }
-		#pragma omp for nowait
-                for(int i = 0; i < N; i++){
-                        room[1][N*(N-1) + i] = wall_temp;
-                }
-                #pragma omp for
-                for(int j = 1; j < N - 1; j++){ 
-                        room[0][j*N] = room[0][j*N + N - 1] = wall_temp;
-                        room[1][j*N] = room[1][j*N + N - 1] = wall_temp;
-                        total += wall_temp * 2;
-                }
-        }
+	}
 
 	average = total/(4 * N - 4);
 	
@@ -142,7 +113,7 @@ int main(int argc, char **argv)
 	clock_gettime(CLOCK_MONOTONIC, &after);
         unsigned long elapsed_ns = (after.tv_sec - before.tv_sec)*(1E9) + after.tv_nsec - before.tv_nsec;
         double seconds = elapsed_ns / (1E9);
-        printf("Running time: %f secs\n", seconds);
+ 	printf("Running time: %f secs\n", seconds);
 	printf("mean: %f\n", average);
 	printf("hmap: %u\n", matrix_checksum(N, room[0]));
 	// end of initialization

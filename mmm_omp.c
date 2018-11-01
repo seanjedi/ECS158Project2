@@ -1,12 +1,11 @@
 #include<stdio.h>
 #include<stdlib.h>
 #include<time.h>
-#include<omp.h>
 
 unsigned int matrix_checksum(int, double*);
 
 void multiply(double* A, double* B, double* C, int N){
-	#pragma omp parallel for
+	#pragma omp parallel for schedule(static)
 	for(int i = 0; i < N; i++){
 		for(int k = 0; k < N; k++){
 			double temp = A[i*N + k];
